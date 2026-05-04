@@ -91,6 +91,16 @@ namespace CompMath5.Views
                     InputErrorText.Text = "Данные успешно загружены из файла в таблицу.";
                     InputErrorText.Foreground = Avalonia.Media.Brushes.Green;
                 }
+                catch (UnauthorizedAccessException ex)
+                {
+                    InputErrorText.Text = $"Нет доступа к файлу по пути: {_selectedFilePath}";
+                    InputErrorText.Foreground = Avalonia.Media.Brushes.Red;
+                }
+                catch (IOException ex)
+                {
+                    InputErrorText.Text = "Ошибка ввода-вывода, возможно, файл испольщуется другим процессором";
+                    InputErrorText.Foreground = Avalonia.Media.Brushes.Red;
+                }
                 catch (Exception ex)
                 {
                     InputErrorText.Text = "Ошибка при чтении файла: " + ex.Message;
