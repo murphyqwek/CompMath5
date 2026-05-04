@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="CompMath5/CompMath5.csproj" />
+  <Project Path="Core/Core.csproj" />
+</Solution>

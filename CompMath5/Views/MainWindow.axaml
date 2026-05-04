@@ -1,0 +1,144 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:scott="clr-namespace:ScottPlot.Avalonia;assembly=ScottPlot.Avalonia"
+        x:Class="CompMath5.Views.MainWindow"
+        xmlns:local="clr-namespace:CompMath5.Views"
+        Title="Лабораторная работа 5"
+        Width="1200" Height="800">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="400" MinWidth="600"/>
+            <ColumnDefinition Width="5" />
+            <ColumnDefinition Width="*" MinWidth="500"/>
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0" Padding="15" Background="#F5F5F5">
+            <Grid RowDefinitions="Auto, Auto, Auto, *, Auto, Auto, Auto">
+                
+                <TextBlock Grid.Row="0" Text="Исходные данные" FontWeight="Bold" FontSize="18" Margin="0,0,0,15"/>
+
+                <StackPanel Grid.Row="1" Spacing="5" Margin="0,0,0,15">
+                    <TextBlock Text="Способ задания точек:" FontWeight="SemiBold"/>
+                    <ComboBox x:Name="InputModeComboBox" SelectedIndex="0" HorizontalAlignment="Stretch" SelectionChanged="InputMode_Changed">
+                        <ComboBoxItem>Таблица данных</ComboBoxItem>
+                        <ComboBoxItem>Загрузка из файла</ComboBoxItem>
+                        <ComboBoxItem>Генерация по функции</ComboBoxItem>
+                    </ComboBox>
+                </StackPanel>
+
+                <Grid Grid.Row="3" x:Name="ManualInputPanel" IsVisible="True" RowDefinitions="*, Auto" Margin="0,0,0,15">
+                    <DataGrid Grid.Row="0" x:Name="PointsDataGrid" 
+                              AutoGenerateColumns="False" 
+                              CanUserSortColumns="False"
+                              VerticalAlignment="Stretch">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="X" Binding="{Binding X, DataType=local:UIPoint}" Width="*" />
+                            <DataGridTextColumn Header="Y" Binding="{Binding Y, DataType=local:UIPoint}" Width="*" />
+                            <DataGridTemplateColumn Width="Auto">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate DataType="local:UIPoint">
+                                        <Button Content="❌" Click="DeleteRowInline_Click" Background="Transparent" Foreground="Red" Padding="5,0"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" Margin="0,5,0,0">
+                        <Button Content="Очистить всё" Click="ClearTable_Click" Foreground="Red" Background="Transparent"/>
+                        <Button Content="Удалить выбранную" Click="DeleteRow_Click" Foreground="DarkRed"/>
+                        <Button Content="Добавить строку" Click="AddRow_Click"/>
+                    </StackPanel>
+                </Grid>
+
+                <StackPanel Grid.Row="3" x:Name="FileInputPanel" IsVisible="False" Spacing="5">
+                    <TextBlock Text="Выберите текстовый файл (формат: X Y на каждой строке)"/>
+                    <Button Content="Обзор..." Click="BrowseFile_Click" HorizontalAlignment="Stretch"/>
+                    <TextBlock x:Name="SelectedFileText" Text="Файл не выбран" FontStyle="Italic" TextWrapping="Wrap"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="3" x:Name="FunctionInputPanel" IsVisible="False" Spacing="10">
+                    <TextBlock Text="Функция:"/>
+                    <ComboBox x:Name="FunctionsComboBox" SelectedIndex="0" HorizontalAlignment="Stretch">
+                        <ComboBoxItem>f(x) = sin(x)</ComboBoxItem>
+                        <ComboBoxItem>f(x) = x^2 - 4x + 5</ComboBoxItem>
+                        <ComboBoxItem>f(x) = e^x</ComboBoxItem>
+                    </ComboBox>
+                    <Grid ColumnDefinitions="*, *" RowDefinitions="Auto, Auto">
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Начало (a):" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="0" Grid.Column="1" x:Name="FuncStartTextBox" Text="-5" Margin="5"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Конец (b):" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" x:Name="FuncEndTextBox" Text="5" Margin="5"/>
+                    </Grid>
+                    <TextBlock Text="Количество точек:"/>
+                    <NumericUpDown x:Name="FuncPointsCount" Minimum="2" Maximum="100" Value="10"/>
+                </StackPanel>
+
+                <Separator Grid.Row="4" Margin="0,10"/>
+
+                <StackPanel Grid.Row="5" Spacing="10">
+                    <TextBlock Text="Найти значение в точке X*:" FontWeight="SemiBold"/>
+                    <TextBox x:Name="TargetXTextBox" Text="0"/>
+                    <TextBlock x:Name="InputErrorText" Foreground="Red" TextWrapping="Wrap" FontWeight="Bold"/>
+                </StackPanel>
+
+                <Button Grid.Row="6" Content="РАССЧИТАТЬ" Background="#0078D7" Foreground="White" 
+                        Height="50" FontSize="16" FontWeight="Bold" VerticalContentAlignment="Center"
+                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                        Click="Calculate_Click" Margin="0,10,0,0"/>
+            </Grid>
+        </Border>
+
+        <GridSplitter Grid.Column="1" Background="Gray" ResizeDirection="Columns"/>
+
+        <Border Grid.Column="2" Padding="10">
+            <TabControl x:Name="ResultsTabControl">
+        
+                <TabItem Header="Лагранж">
+                    <Grid RowDefinitions="Auto, Auto, *">
+                        <TextBlock x:Name="ErrorLagrange" Foreground="Red" FontWeight="Bold" Margin="0,0,0,5"/>
+                        <TextBlock x:Name="ResultLagrange" Grid.Row="1" FontSize="16" Margin="0,5" Foreground="#0078D7" FontWeight="SemiBold"/>
+                        <scott:AvaPlot Grid.Row="2" x:Name="PlotLagrange"/>
+                    </Grid>
+                </TabItem>
+
+                <TabItem Header="Ньютон (Разд.)">
+                    <Grid RowDefinitions="Auto, Auto, *, *">
+                        <TextBlock x:Name="ErrorNewtonDiv" Foreground="Red" FontWeight="Bold" Margin="0,0,0,5"/>
+                        <TextBlock x:Name="ResultNewtonDiv" Grid.Row="1" FontSize="16" Margin="0,5" Foreground="#0078D7" FontWeight="SemiBold"/>
+                        <scott:AvaPlot Grid.Row="2" x:Name="PlotNewtonDiv"/>
+                        <DataGrid Grid.Row="3" x:Name="TableNewtonDiv" Margin="0,10,0,0" IsReadOnly="True"/>
+                    </Grid>
+                </TabItem>
+
+                <TabItem Header="Ньютон (Кон.)">
+                    <Grid RowDefinitions="Auto, Auto, *, *">
+                        <TextBlock x:Name="ErrorNewtonFin" Foreground="Red" FontWeight="Bold" Margin="0,0,0,5"/>
+                        <TextBlock x:Name="ResultNewtonFin" Grid.Row="1" FontSize="16" Margin="0,5" Foreground="#0078D7" FontWeight="SemiBold"/>
+                        <scott:AvaPlot Grid.Row="2" x:Name="PlotNewtonFin"/> 
+                        <DataGrid Grid.Row="3" x:Name="TableNewtonFin" Margin="0,10,0,0" IsReadOnly="True"/>
+                    </Grid>
+                </TabItem>
+
+                <TabItem Header="Стирлинг">
+                    <Grid RowDefinitions="Auto, Auto, *, *">
+                        <TextBlock x:Name="ErrorStirling" Foreground="Red" FontWeight="Bold" Margin="0,0,0,5"/>
+                        <TextBlock x:Name="ResultStirling" Grid.Row="1" FontSize="16" Margin="0,5" Foreground="#0078D7" FontWeight="SemiBold"/>
+                        <scott:AvaPlot Grid.Row="2" x:Name="PlotStirling"/>
+                        <DataGrid Grid.Row="3" x:Name="TableStirling" Margin="0,10,0,0" IsReadOnly="True"/>
+                    </Grid>
+                </TabItem>
+
+                <TabItem Header="Бессель">
+                    <Grid RowDefinitions="Auto, Auto, *, *">
+                        <TextBlock x:Name="ErrorBessel" Foreground="Red" FontWeight="Bold" Margin="0,0,0,5"/>
+                        <TextBlock x:Name="ResultBessel" Grid.Row="1" FontSize="16" Margin="0,5" Foreground="#0078D7" FontWeight="SemiBold"/>
+                        <scott:AvaPlot Grid.Row="2" x:Name="PlotBessel"/>
+                        <DataGrid Grid.Row="3" x:Name="TableBessel" Margin="0,10,0,0" IsReadOnly="True"/>
+                    </Grid>
+                </TabItem>
+            </TabControl>
+        </Border>
+    </Grid>
+</Window>
