@@ -204,7 +204,11 @@ namespace CompMath5.Views
                 if (!TryParseDouble(FuncStartTextBox.Text, out double a) || !TryParseDouble(FuncEndTextBox.Text, out double b))
                     throw new Exception("Неверные границы интервала");
 
-                int count = (int)(FuncPointsCount.Value ?? 10);
+                if (FuncPointsCount.Value == null || FuncPointsCount.Value < 2)
+                    throw new Exception("Количество точек должно быть целым числом не меньше 2");
+
+                int count = (int)Math.Truncate(FuncPointsCount.Value.Value);
+
                 double step = (b - a) / (count - 1);
 
                 if (FunctionsComboBox.SelectedIndex == 0) originalFunc = Math.Sin;
