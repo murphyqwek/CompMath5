@@ -112,6 +112,13 @@ namespace CompMath5.Views
         private void Calculate_Click(object sender, RoutedEventArgs e)
         {
             InputErrorText.Text = "";
+            InputErrorText.Foreground = Avalonia.Media.Brushes.Red;
+
+            TargetXTextBox.ClearValue(TextBox.BorderBrushProperty);
+            FuncStartTextBox.ClearValue(TextBox.BorderBrushProperty);
+            FuncEndTextBox.ClearValue(TextBox.BorderBrushProperty);
+            FuncPointsCount.ClearValue(NumericUpDown.BorderBrushProperty);
+
             ClearAllTabs();
 
             List<Point> mathPoints;
@@ -130,7 +137,6 @@ namespace CompMath5.Views
             }
             catch (Exception ex)
             {
-                InputErrorText.Foreground = Avalonia.Media.Brushes.Red;
                 InputErrorText.Text = ex.Message;
                 return;
             }
@@ -155,7 +161,6 @@ namespace CompMath5.Views
                     throw new Exception("Некорректное значение X*. Оно должно быть числом");
                 }
                 targetX = EDecimal.FromDouble(tx);
-                TargetXTextBox.ClearValue(TextBox.BorderBrushProperty);
 
                 for (int i = 0; i < ManualPoints.Count; i++)
                 {
@@ -198,13 +203,45 @@ namespace CompMath5.Views
             }
             else if (InputModeComboBox.SelectedIndex == 2)
             {
-                if (!TryParseDouble(TargetXTextBox.Text, out double tx)) throw new Exception("Неверный X*");
+                if (!TryParseDouble(TargetXTextBox.Text, out double tx))
+                {
+                    TargetXTextBox.BorderBrush = Avalonia.Media.Brushes.Red;
+                    throw new Exception("Неверный X*");
+                }
                 targetX = EDecimal.FromDouble(tx);
 
-                if (!TryParseDouble(FuncStartTextBox.Text, out double a) || !TryParseDouble(FuncEndTextBox.Text, out double b))
-                    throw new Exception("Неверные границы интервала");
+                bool isAValid = TryParseDouble(FuncStartTextBox.Text, out double a);
+                bool isBValid = TryParseDouble(FuncEndTextBox.Text, out double b);
 
-                int count = (int)(FuncPointsCount.Value ?? 10);
+                if (!isAValid) FuncStartTextBox.BorderBrush = Avalonia.Media.Brushes.Red;
+                if (!isBValid) FuncEndTextBox.BorderBrush = Avalonia.Media.Brushes.Red;
+
+                if (!isAValid || !isBValid)
+                    throw new Exception("Неверные границы интервала. Введите корректные числа.");
+
+                if (a >= b)
+                {
+                    FuncStartTextBox.BorderBrush = Avalonia.Media.Brushes.Red;
+                    FuncEndTextBox.BorderBrush = Avalonia.Media.Brushes.Red;
+                    throw new Exception("Начало интервала (a) должно быть строго меньше конца (b).");
+                }
+
+                decimal? countValue = FuncPointsCount.Value;
+
+                if (countValue == null || countValue <= 0 || countValue % 1 != 0)
+                {
+                    FuncPointsCount.BorderBrush = Avalonia.Media.Brushes.Red;
+                    throw new Exception("Количество точек должно быть целым положительным числом (> 0).");
+                }
+
+                int count = (int)countValue.Value;
+
+                if (count < 2)
+                {
+                    FuncPointsCount.BorderBrush = Avalonia.Media.Brushes.Red;
+                    throw new Exception("Для интерполяции необходимо задать минимум 2 точки.");
+                }
+
                 double step = (b - a) / (count - 1);
 
                 if (FunctionsComboBox.SelectedIndex == 0) originalFunc = Math.Sin;
