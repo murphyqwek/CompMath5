@@ -72,7 +72,7 @@
                         <TextBox Grid.Row="1" Grid.Column="1" x:Name="FuncEndTextBox" Text="5" Margin="5"/>
                     </Grid>
                     <TextBlock Text="Количество точек:"/>
-                    <NumericUpDown x:Name="FuncPointsCount" Minimum="2" Maximum="100" Value="10" Increment="1" FormatString="0"/>
+                    <NumericUpDown x:Name="FuncPointsCount" Minimum="2" Maximum="100" Value="10" Increment="1"/>
                 </StackPanel>
 
                 <Separator Grid.Row="4" Margin="0,10"/>
