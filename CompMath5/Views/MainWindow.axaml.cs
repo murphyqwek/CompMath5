@@ -311,7 +311,17 @@ namespace CompMath5.Views
                 DrawPlot(PlotBessel, bessel.Interpolate, points, targetX, result, originalFunc, "Бессель");
                 BindTableToDataGrid(TableBessel, bessel.Table, points.Select(p => p.X.ToDouble()).ToArray());
             }
+
             catch (Exception ex) { ErrorBessel.Text = ex.Message; }
+
+            try
+            {
+                var spline = new CubicSpline(points);
+                EDecimal result = spline.Interpolate(targetX);
+                ResultSpline.Text = $"Результат: S({targetXStr}) = {result.ToDouble():F8}";
+                DrawPlot(PlotSpline, spline.Interpolate, points, targetX, result, originalFunc, "Кубический сплайн");
+            }
+            catch (Exception ex) { ErrorSpline.Text = ex.Message; }
         }
 
         private void DrawPlot(AvaPlot avaPlot, Func<EDecimal, EDecimal> interpolateFunc,
@@ -462,6 +472,7 @@ namespace CompMath5.Views
             PlotNewtonFin.Plot.Clear(); PlotNewtonFin.Refresh();
             PlotStirling.Plot.Clear(); PlotStirling.Refresh();
             PlotBessel.Plot.Clear(); PlotBessel.Refresh();
+            PlotSpline.Plot.Clear(); PlotSpline.Refresh();
 
             TableNewtonDiv.ItemsSource = TableNewtonFin.ItemsSource = TableStirling.ItemsSource = TableBessel.ItemsSource = null;
         }

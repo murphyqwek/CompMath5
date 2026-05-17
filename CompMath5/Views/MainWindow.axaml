@@ -138,6 +138,14 @@
                         <DataGrid Grid.Row="3" x:Name="TableBessel" Margin="0,10,0,0" IsReadOnly="True"/>
                     </Grid>
                 </TabItem>
+
+                <TabItem Header="Кубический сплайн">
+                    <Grid RowDefinitions="Auto, Auto, *">
+                        <TextBlock x:Name="ErrorSpline" Foreground="Red" FontWeight="Bold" Margin="0,0,0,5"/>
+                        <TextBlock x:Name="ResultSpline" Grid.Row="1" FontSize="16" Margin="0,5" Foreground="#0078D7" FontWeight="SemiBold"/>
+                        <scott:AvaPlot Grid.Row="2" x:Name="PlotSpline"/>
+                    </Grid>
+                </TabItem>
             </TabControl>
         </Border>
     </Grid>
